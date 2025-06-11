@@ -5,4 +5,10 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes: []
-  m_configObjects: {}
+  m_configObjects:
+    UnityEditor.XR.ARCore.ARCoreSettings: {fileID: 11400000, guid: 5411c6ebbee46f04c8edaca627243445, type: 2}
+    UnityEditor.XR.ARKit.ARKitSettings: {fileID: 11400000, guid: 40b66cc96ab152f44beea3d043f5ceab, type: 2}
+    com.unity.xr.arfoundation.simulation_settings: {fileID: 11400000, guid: 39df966081ca6e847a627dcbedf78d97, type: 2}
+    com.unity.xr.magicleap.magic_leap_settings: {fileID: 11400000, guid: 2208f1618bd49fe40bb31eb4535354a8, type: 2}
+    com.unity.xr.management.loader_settings: {fileID: 11400000, guid: 72bc2f745ae6ab649832cbcae09bfcc7, type: 2}
+    com.unity.xr.openxr.settings4: {fileID: 11400000, guid: c6209ab3077c8ab45990fe38c881d7c3, type: 2}
