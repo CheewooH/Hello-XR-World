@@ -629,7 +629,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   arRaycastManager: {fileID: 1714988124}
-  petPrefab: {fileID: 1892866378441394787, guid: a68bb13beadcebd40b3c116fb9a6b839, type: 3}
+  petPrefab: {fileID: 4318119618486294363, guid: 67d10dd671ae84b4f85cff9a50cad5a2, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
