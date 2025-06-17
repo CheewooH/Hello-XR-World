@@ -1,87 +1,104 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class PetController : MonoBehaviour
 {
-    public float moveSpeed = 1f;      // 걷는 속도
-    public float walkRadius = 3f;     // 이 반경 내에서만 돌아다님
-    public float minIdleTime = 2f;    // 최소 대기 시간
-    public float maxIdleTime = 5f;    // 최대 대기 시간
+    public float moveSpeed = 0.5f;
+    public float walkRadius = 2.0f;
+    public float minIdleTime = 2.0f;
+    public float maxIdleTime = 5.0f;
 
     private Animator animator;
-    private Vector3 startPosition;      // 처음 소환된 위치
-    private Vector3 targetPosition;     // 다음 이동할 목표 위치
-    private bool isWalking = false;     // 현재 걷고 있는지 상태 저장
-    private Coroutine walkRoutine;  // 코루틴 제어를 위한 변수
+    private Vector3 startPosition;
+    private Vector3 targetPosition;
+    private Coroutine walkCoroutine;
 
     void Start()
     {
         animator = GetComponent<Animator>();
-        startPosition = transform.position; // 처음 위치 저장
+        startPosition = transform.position;
+        targetPosition = transform.position; // 시작할 땐 움직이지 않음
 
-        // 행동 시작
-        StartCoroutine(WalkRoutine());
+        walkCoroutine = StartCoroutine(WalkRoutine());
     }
-
+    
     void Update()
     {
-        if (isWalking)
+        if (animator.GetBool("IsWalking"))
         {
-            // 목표 지점으로 천천히 이동
+            // 목표 지점으로 이동
             transform.position = Vector3.MoveTowards(transform.position, targetPosition, moveSpeed * Time.deltaTime);
 
-            // 목표 지점을 향해 몸을 회전
+            // 목표 지점을 향해 회전
             Vector3 direction = (targetPosition - transform.position).normalized;
             if (direction != Vector3.zero)
             {
                 transform.rotation = Quaternion.LookRotation(direction);
             }
-
-            // 목표 지점에 거의 도착했다면 멈춤
+            // 목표 지점에 도착하면 멈춤
             if (Vector3.Distance(transform.position, targetPosition) < 0.1f)
             {
-                isWalking = false;
                 animator.SetBool("IsWalking", false);
             }
         }
     }
 
+    // 터치시 상호작용
     public void OnTouched()
     {
-        if (walkRoutine != null)
+        if (walkCoroutine != null)
         {
-            StopCoroutine(walkRoutine);
+            StopCoroutine(walkCoroutine);
         }
-
+        targetPosition = transform.position;
         animator.SetBool("IsWalking", false);
         animator.SetTrigger("Bounce");
 
-        walkRoutine = StartCoroutine(WalkRoutine());
+        walkCoroutine = StartCoroutine(WalkRoutine());
     }
 
-    IEnumerator WalkRoutine()
+    // 이동 명령을 받아서 지정된 위치로 이동
+    public void MoveTo(Vector3 newDestination)
+    {
+        if (walkCoroutine != null)
+        {
+            StopCoroutine(walkCoroutine);
+        }
+
+        targetPosition = newDestination;
+
+        animator.SetBool("IsWalking", true);
+
+        walkCoroutine = StartCoroutine(ReturnWalkRoutine());
+    }
+
+    // 펫이 돌아다니는 코루틴
+    private IEnumerator WalkRoutine()
     {
         while (true)
         {
-            // 대기
-            float idleTime = Random.Range(minIdleTime, maxIdleTime);
+            float idleTime = Random.Range(minIdleTime, maxIdleTime); 
             yield return new WaitForSeconds(idleTime);
 
-            // 새로운 목표 지점 설정
-            Vector2 randomPoint = Random.insideUnitCircle * walkRadius;
-            targetPosition = startPosition + new Vector3(randomPoint.x, 0, randomPoint.y);
-            // ChooseNewDestination();
+            ChooseNewDestination();
+            animator.SetBool("IsWalking", true);
 
-            // 걷기 시작
-            isWalking = true;
-            animator.SetBool("IsWalking", true); // "Walk" 애니메이션 시작
-
-            yield return new WaitUntil(() => !isWalking);
+            yield return new WaitUntil(() => !animator.GetBool("IsWalking")); // 이동이 끝날 때까지 대기
         }
     }
-    void ChooseNewDestination() // ARPlane 위에 있는 목표 지점 선택
+
+    // 이동명령 후 다시 돌아다니는 코루틴
+    private IEnumerator ReturnWalkRoutine() 
     {
-        
+        yield return new WaitUntil(() => !animator.GetBool("IsWalking"));
+
+        walkCoroutine = StartCoroutine(WalkRoutine());
+    }
+
+    // 새로운 목적지를 선택하는 메소드
+    private void ChooseNewDestination()
+    {
+        Vector2 randomPoint = Random.insideUnitCircle * walkRadius;
+        targetPosition = startPosition + new Vector3(randomPoint.x, 0, randomPoint.y);
     }
 }
