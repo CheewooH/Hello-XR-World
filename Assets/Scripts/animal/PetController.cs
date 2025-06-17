@@ -13,6 +13,7 @@ public class PetController : MonoBehaviour
     private Vector3 startPosition;      // 처음 소환된 위치
     private Vector3 targetPosition;     // 다음 이동할 목표 위치
     private bool isWalking = false;     // 현재 걷고 있는지 상태 저장
+    private Coroutine walkRoutine;  // 코루틴 제어를 위한 변수
 
     void Start()
     {
@@ -20,7 +21,7 @@ public class PetController : MonoBehaviour
         startPosition = transform.position; // 처음 위치 저장
 
         // 행동 시작
-        StartCoroutine(WanderRoutine());
+        StartCoroutine(WalkRoutine());
     }
 
     void Update()
@@ -48,11 +49,18 @@ public class PetController : MonoBehaviour
 
     public void OnTouched()
     {
+        if (walkRoutine != null)
+        {
+            StopCoroutine(walkRoutine);
+        }
+
+        animator.SetBool("IsWalking", false);
         animator.SetTrigger("Bounce");
-        Debug.Log("Bounce 애니메이션 실행!");
+
+        walkRoutine = StartCoroutine(WalkRoutine());
     }
 
-    IEnumerator WanderRoutine()
+    IEnumerator WalkRoutine()
     {
         while (true)
         {
@@ -63,6 +71,7 @@ public class PetController : MonoBehaviour
             // 새로운 목표 지점 설정
             Vector2 randomPoint = Random.insideUnitCircle * walkRadius;
             targetPosition = startPosition + new Vector3(randomPoint.x, 0, randomPoint.y);
+            // ChooseNewDestination();
 
             // 걷기 시작
             isWalking = true;
@@ -70,5 +79,9 @@ public class PetController : MonoBehaviour
 
             yield return new WaitUntil(() => !isWalking);
         }
+    }
+    void ChooseNewDestination() // ARPlane 위에 있는 목표 지점 선택
+    {
+        
     }
 }
